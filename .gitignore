@@ -5,6 +5,7 @@ ml-kit/LatihanCamera/.idea/gradle.xml
 ml-kit/LatihanCamera/.idea/deploymentTargetDropDown.xml
 ml-kit/LatihanCamera/.idea/compiler.xml
 ml-kit/LatihanCamera/.idea/.name
+ml-kit/LatihanCamera/.idea/deploymentTargetSelector.xml
 tf-lite/LatihanCamera/.idea/vcs.xml
 tf-lite/LatihanCamera/.idea/misc.xml
 tf-lite/LatihanCamera/.idea/kotlinc.xml
@@ -12,6 +13,7 @@ tf-lite/LatihanCamera/.idea/gradle.xml
 tf-lite/LatihanCamera/.idea/deploymentTargetDropDown.xml
 tf-lite/LatihanCamera/.idea/compiler.xml
 tf-lite/LatihanCamera/.idea/.name
-tf-lite/LatihanCamera/.idea/.git_toolbox_blame.xml
-tf-lite/LatihanCamera/.idea/.git_toolbox_prj.xml
+tf-lite/LatihanCamera/.idea/git_toolbox_blame.xml
+tf-lite/LatihanCamera/.idea/git_toolbox_prj.xml
+tf-lite/LatihanCamera/.idea/deploymentTargetSelector.xml
 tf-lite/LatihanCamera/.idea/.migrations.xml
