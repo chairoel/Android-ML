@@ -3,6 +3,7 @@ package com.dicoding.picodiploma.mycamera
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Toast
@@ -15,16 +16,16 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.dicoding.picodiploma.mycamera.databinding.ActivityCameraBinding
-import com.dicoding.picodiploma.mycamera.helper.ClassifierListener
-import com.dicoding.picodiploma.mycamera.helper.ImageClassifierHelper
-import org.tensorflow.lite.task.gms.vision.classifier.Classifications
+import com.dicoding.picodiploma.mycamera.helper.DetectorListener
+import com.dicoding.picodiploma.mycamera.helper.ObjectDetectorHelper
+import org.tensorflow.lite.task.gms.vision.detector.Detection
 import java.text.NumberFormat
 import java.util.concurrent.Executors
 
 class CameraActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCameraBinding
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-    private lateinit var imageClassifierHelper: ImageClassifierHelper
+    private lateinit var objectDetectorHelper: ObjectDetectorHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,28 +42,30 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun startCamera() {
-        imageClassifierHelper = ImageClassifierHelper(
+        objectDetectorHelper = ObjectDetectorHelper(
             context = this,
-            classifierListener = object : ClassifierListener {
+            detectorListener = object : DetectorListener {
                 override fun onError(error: String) {
                     runOnUiThread {
                         Toast.makeText(this@CameraActivity, error, Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onResults(results: List<Classifications>?, inferenceTime: Long) {
+                override fun onResults(results: MutableList<Detection>?, inferenceTime: Long) {
                     runOnUiThread {
                         results?.let { it ->
                             if (it.isNotEmpty() && it[0].categories.isNotEmpty()) {
                                 println(it)
-                                val sortedCategories =
-                                    it[0].categories.sortedByDescending { it?.score }
-                                val displayResult =
-                                    sortedCategories.joinToString("\n") {
-                                        "${it.label} " + NumberFormat.getPercentInstance()
-                                            .format(it.score).trim()
-                                    }
-                                binding.tvResult.text = displayResult
+                                val builder = StringBuilder()
+                                for (result in results) {
+                                    val displayResult =
+                                        "${result.categories[0].label} " + NumberFormat.getPercentInstance()
+                                            .format(result.categories[0].score).trim()
+                                    builder.append("$displayResult \n")
+                                }
+
+                                binding.tvResult.text = builder.toString()
+                                binding.tvResult.visibility = View.VISIBLE
                                 "$inferenceTime ms".also { binding.tvInferenceTime.text = it }
                             } else {
                                 binding.tvResult.text = ""
@@ -89,7 +92,7 @@ class CameraActivity : AppCompatActivity() {
                 .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
             imageAnalyzer.setAnalyzer(Executors.newSingleThreadExecutor()) { image ->
-                imageClassifierHelper.classifyImage(image)
+                objectDetectorHelper.detectObject(image)
             }
 
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
